@@ -33,6 +33,15 @@
             </div>
         </header>
 
+        <section class="calendar-section" id="calendar-section">
+            <div class="section-header">
+                <h2>Routine History</h2>
+            </div>
+            <div class="calendar-grid" id="calendar-grid">
+                <!-- Calendar days injected here -->
+            </div>
+        </section>
+
         <main>
             <section class="routine-section" id="morning-section">
                 <div class="section-header">
@@ -43,6 +52,13 @@
                     <div class="progress-bar" id="morning-progress"></div>
                 </div>
                 <div class="task-list" id="morning-list"></div>
+                
+                <div class="completed-tasks-wrapper">
+                    <details class="completed-tasks-details">
+                        <summary>Completed Tasks</summary>
+                        <div class="task-list completed-list" id="morning-completed-list"></div>
+                    </details>
+                </div>
             </section>
 
             <section class="routine-section" id="evening-section">
@@ -54,6 +70,13 @@
                     <div class="progress-bar" id="evening-progress"></div>
                 </div>
                 <div class="task-list" id="evening-list"></div>
+                
+                <div class="completed-tasks-wrapper">
+                    <details class="completed-tasks-details">
+                        <summary>Completed Tasks</summary>
+                        <div class="task-list completed-list" id="evening-completed-list"></div>
+                    </details>
+                </div>
             </section>
         </main>
     </div>

@@ -48,6 +48,7 @@ let taskState = JSON.parse(localStorage.getItem(storageKey)) || {};
 function saveState() {
     localStorage.setItem(storageKey, JSON.stringify(taskState));
     updateProgress();
+    if (typeof renderCalendar === 'function') renderCalendar();
 }
 
 function updateProgress() {
@@ -68,7 +69,7 @@ function updateProgress() {
     document.getElementById('evening-progress').style.width = `${eveningPercent}%`;
 }
 
-function createTaskCard(task, isFaceOrBody = false) {
+function createTaskCard(task, isFaceOrBody = false, targetListId, completedListId) {
     const isCompleted = !!taskState[task.id];
     
     const card = document.createElement('label');
@@ -99,16 +100,87 @@ function createTaskCard(task, isFaceOrBody = false) {
 
     const checkbox = card.querySelector('input');
     checkbox.addEventListener('change', (e) => {
-        taskState[task.id] = e.target.checked;
-        if (e.target.checked) {
-            card.classList.add('completed');
-        } else {
-            card.classList.remove('completed');
-        }
+        const checked = e.target.checked;
+        taskState[task.id] = checked;
+        
+        card.classList.add('moving-out');
+        
+        setTimeout(() => {
+            if (checked) {
+                card.classList.add('completed');
+                document.getElementById(completedListId).appendChild(card);
+            } else {
+                card.classList.remove('completed');
+                document.getElementById(targetListId).appendChild(card);
+            }
+            card.classList.remove('moving-out');
+            card.classList.add('moving-in');
+            
+            setTimeout(() => {
+                card.classList.remove('moving-in');
+            }, 400);
+            
+        }, 400);
+
         saveState();
     });
 
     return card;
+}
+
+function getDailyProgress(dateString) {
+    const state = JSON.parse(localStorage.getItem(`routine_state_${dateString}`)) || {};
+    return Object.values(state).filter(v => v).length;
+}
+
+function renderCalendar() {
+    const grid = document.getElementById('calendar-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    
+    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    daysOfWeek.forEach(day => {
+        const header = document.createElement('div');
+        header.className = 'calendar-day-header';
+        header.innerText = day;
+        grid.appendChild(header);
+    });
+
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    
+    for (let i = 0; i < firstDay; i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'calendar-day empty';
+        grid.appendChild(emptyDay);
+    }
+    
+    const todayStr = currentDateOnly.toISOString().split('T')[0];
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateObj = new Date(currentYear, currentMonth, day);
+        const dateString = new Date(dateObj.getTime() - (dateObj.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+        
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'calendar-day';
+        dayDiv.innerText = day;
+        
+        let completedCount = 0;
+        if (dateString === todayStr) {
+            dayDiv.classList.add('today');
+            completedCount = Object.values(taskState).filter(v => v).length;
+        } else if (dateObj < currentDateOnly) {
+            completedCount = getDailyProgress(dateString);
+        }
+
+        if (completedCount >= 10) dayDiv.classList.add('completed');
+        else if (completedCount > 0) dayDiv.classList.add('partial');
+        
+        grid.appendChild(dayDiv);
+    }
 }
 
 function renderApp() {
@@ -121,21 +193,31 @@ function renderApp() {
 
     // Render Morning
     const morningList = document.getElementById('morning-list');
+    const morningCompletedList = document.getElementById('morning-completed-list');
+    morningList.innerHTML = '';
+    morningCompletedList.innerHTML = '';
     morningRoutine.forEach(task => {
-        morningList.appendChild(createTaskCard(task));
+        const card = createTaskCard(task, false, 'morning-list', 'morning-completed-list');
+        if (taskState[task.id]) morningCompletedList.appendChild(card);
+        else morningList.appendChild(card);
     });
 
     // Render Evening
     const eveningList = document.getElementById('evening-list');
-    coreEveningBase.forEach(task => {
-        eveningList.appendChild(createTaskCard(task));
-    });
+    const eveningCompletedList = document.getElementById('evening-completed-list');
+    eveningList.innerHTML = '';
+    eveningCompletedList.innerHTML = '';
     
-    // Append dynamically calculated face and body treatments
-    eveningList.appendChild(createTaskCard(faceTreatments[faceCycleNight], true));
-    eveningList.appendChild(createTaskCard(bodyTreatments[bodyCycleType], true));
+    const eveningTasks = [...coreEveningBase, faceTreatments[faceCycleNight], bodyTreatments[bodyCycleType]];
+    eveningTasks.forEach(task => {
+        const isTreatment = task.id.startsWith('f') || task.id.startsWith('b');
+        const card = createTaskCard(task, isTreatment, 'evening-list', 'evening-completed-list');
+        if (taskState[task.id]) eveningCompletedList.appendChild(card);
+        else eveningList.appendChild(card);
+    });
 
     updateProgress();
+    renderCalendar();
 }
 
 // Initialize
