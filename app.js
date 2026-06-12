@@ -27,6 +27,39 @@ const bodyTreatments = {
     hydration: { id: 'b2', title: 'Deep Hydration Only', product: 'Nivea Cocoa Nourish', wait: 'None', action: 'Apply thick layer to inner thighs, knees, and elbows. No acids.' }
 };
 
+// Gym Routines
+const gymPostureRoutine = [
+    { id: 'gp1', product: 'Cat-Cow Stretch', wait: 'None', action: '1 x 20 reps. Exaggerate the "cat" hump to practice tucking your pelvis under.' },
+    { id: 'gp2', product: 'Kneeling Hip Flexor Stretch', wait: '45s/side', action: '1 x 45s per leg. Crucial for APT. Squeeze glutes hard before leaning into the stretch.' },
+    { id: 'gp3', product: 'Doorway Pec Stretch', wait: '45s', action: '1 x 45s. Step through the doorway until your chest opens up.' },
+    { id: 'gp4', product: 'Prone Cobra', wait: 'None', action: '1 x 15 reps. Lift chest, squeeze shoulder blades together for a 2s hold at the top.' },
+    { id: 'gp5', product: 'Glute Bridges', wait: 'None', action: '2 x 15 reps. Lie on your back, push through heels. Squeeze glutes hard at the top.' }
+];
+
+const gymWorkoutA = [
+    { id: 'gwa1', product: 'Goblet Squat', wait: '90-120s rest', action: '2 x 10-12 reps. Hold dumbbell vertically at chest level. Keep torso upright.' },
+    { id: 'gwa2', product: 'Romanian Deadlift (RDL)', wait: '90-120s rest', action: '2 x 10-12 reps. High Priority. Push hips back until stretch in hamstrings. Squeeze glutes at top.' },
+    { id: 'gwa3', product: 'Seated Cable Row', wait: '90-120s rest', action: '2 x 12-15 reps. Wide grip. Keep chest up and pull elbows back.' },
+    { id: 'gwa4', product: 'Dumbbell Bench Press', wait: '90-120s rest', action: '2 x 10-12 reps. Keep shoulders pinned back. Lower weights under control.' },
+    { id: 'gwa5', product: 'Dumbbell Lateral Raise', wait: '90-120s rest', action: '2 x 15-20 reps. Light weight. Lift arms to sides to build shoulder width.' }
+];
+
+const gymWorkoutB = [
+    { id: 'gwb1', product: 'Dumbbell Split Squat', wait: '90-120s rest', action: '2 x 10 reps per leg. Keep front foot flat, drop back knee straight down. Balances leg strength.' },
+    { id: 'gwb2', product: 'Lying Leg Curl', wait: '90-120s rest', action: '2 x 12-15 reps. Machine curl. Control the negative (downward) phase.' },
+    { id: 'gwb3', product: 'Lat Pulldown', wait: '90-120s rest', action: '2 x 10-12 reps. Pull bar to upper chest. Squeeze lats. Builds back width.' },
+    { id: 'gwb4', product: 'Incline DB Press', wait: '90-120s rest', action: '2 x 10-12 reps. Bench set to 30 degrees. Targets upper chest.' },
+    { id: 'gwb5', product: 'Cable Face Pulls', wait: '90-120s rest', action: '2 x 15-20 reps. High Priority. Pull rope toward face, pulling hands apart.' }
+];
+
+const gymWalking = [
+    { id: 'gww1', product: 'Light Walking', wait: '20 mins', action: 'Brisk walking to promote active recovery, blood flow, and calorie burn.' }
+];
+
+const gymRest = [
+    { id: 'gwr1', product: 'Complete Rest & Recovery', wait: 'All Day', action: 'No physical workouts. Let muscles repair, hydrate well, and sleep plenty.' }
+];
+
 // Date Logic
 const currentDate = new Date();
 const anchorDate = new Date(2026, 5, 12); // June 12, 2026 is Night 1
@@ -41,6 +74,23 @@ const dayOfWeek = currentDateOnly.getDay(); // 0 is Sunday, 1 is Monday
 const isExfoliationDay = [1, 3, 5].includes(dayOfWeek); // Mon, Wed, Fri
 const bodyCycleType = isExfoliationDay ? 'exfoliation' : 'hydration';
 
+// Determine Gym Routine for today
+let todayWorkout = [];
+let todayFocusTitle = "";
+if (dayOfWeek === 1 || dayOfWeek === 5) {
+    todayWorkout = gymWorkoutA;
+    todayFocusTitle = "Workout A (Quad/Glute Focus)";
+} else if (dayOfWeek === 3 || dayOfWeek === 6) {
+    todayWorkout = gymWorkoutB;
+    todayFocusTitle = "Workout B (Hamstring & Width Focus)";
+} else if (dayOfWeek === 2 || dayOfWeek === 4) {
+    todayWorkout = gymWalking;
+    todayFocusTitle = "Active Recovery (Walking)";
+} else {
+    todayWorkout = gymRest;
+    todayFocusTitle = "Complete Rest";
+}
+
 // State Management
 const storageKey = `routine_state_${currentDateOnly.toISOString().split('T')[0]}`;
 let taskState = JSON.parse(localStorage.getItem(storageKey)) || {};
@@ -52,6 +102,7 @@ function saveState() {
 }
 
 function updateProgress() {
+    // Skincare progress
     const morningTasks = morningRoutine.map(t => t.id);
     const eveningTasks = [
         ...coreEveningBase.map(t => t.id),
@@ -65,11 +116,28 @@ function updateProgress() {
     const morningPercent = morningTasks.length ? (morningCompleted / morningTasks.length) * 100 : 0;
     const eveningPercent = eveningTasks.length ? (eveningCompleted / eveningTasks.length) * 100 : 0;
 
-    document.getElementById('morning-progress').style.width = `${morningPercent}%`;
-    document.getElementById('evening-progress').style.width = `${eveningPercent}%`;
+    const morningProgress = document.getElementById('morning-progress');
+    const eveningProgress = document.getElementById('evening-progress');
+    if (morningProgress) morningProgress.style.width = `${morningPercent}%`;
+    if (eveningProgress) eveningProgress.style.width = `${eveningPercent}%`;
+
+    // Gym progress
+    const postureTasks = gymPostureRoutine.map(t => t.id);
+    const workoutTasks = todayWorkout.map(t => t.id);
+
+    const postureCompleted = postureTasks.filter(id => taskState[id]).length;
+    const workoutCompleted = workoutTasks.filter(id => taskState[id]).length;
+
+    const posturePercent = postureTasks.length ? (postureCompleted / postureTasks.length) * 100 : 0;
+    const workoutPercent = workoutTasks.length ? (workoutCompleted / workoutTasks.length) * 100 : 0;
+
+    const postureProgress = document.getElementById('posture-progress');
+    const workoutProgress = document.getElementById('workout-progress');
+    if (postureProgress) postureProgress.style.width = `${posturePercent}%`;
+    if (workoutProgress) workoutProgress.style.width = `${workoutPercent}%`;
 }
 
-function createTaskCard(task, isFaceOrBody = false, targetListId, completedListId) {
+function createTaskCard(task, isSpecial = false, targetListId, completedListId) {
     const isCompleted = !!taskState[task.id];
     
     const card = document.createElement('label');
@@ -77,14 +145,19 @@ function createTaskCard(task, isFaceOrBody = false, targetListId, completedListI
     
     // Add specific styles if it's a special treatment
     let titleClass = 'task-title';
-    if (isFaceOrBody) {
-        if (task.title.includes('Exfoliation')) titleClass += ' tag-exfoliation';
-        if (task.title.includes('Retinoid')) titleClass += ' tag-retinoid';
-        if (task.title.includes('Recovery') || task.title.includes('Hydration')) titleClass += ' tag-recovery';
+    if (isSpecial) {
+        if (task.title && task.title.includes('Exfoliation')) titleClass += ' tag-exfoliation';
+        else if (task.title && task.title.includes('Retinoid')) titleClass += ' tag-retinoid';
+        else if (task.title && (task.title.includes('Recovery') || task.title.includes('Hydration'))) titleClass += ' tag-recovery';
+        
+        // Add gym special styles if applicable
+        if (task.action && (task.action.includes('High Priority') || (task.product && task.product.includes('RDL')) || (task.product && task.product.includes('Face Pulls')))) {
+            titleClass += ' tag-high-priority';
+        }
     }
 
     const waitText = task.wait !== 'None' ? `<span class="task-meta">Wait: ${task.wait}</span>` : '';
-    const titleText = isFaceOrBody ? `${task.title} - ${task.product}` : task.product;
+    const titleText = (isSpecial && task.title) ? `${task.title} - ${task.product}` : task.product;
 
     card.innerHTML = `
         <div class="checkbox-container">
@@ -138,8 +211,8 @@ function renderCalendar() {
     if (!grid) return;
     grid.innerHTML = '';
     
-    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    daysOfWeek.forEach(day => {
+    const daysOfWeekList = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    daysOfWeekList.forEach(day => {
         const header = document.createElement('div');
         header.className = 'calendar-day-header';
         header.innerText = day;
@@ -176,11 +249,60 @@ function renderCalendar() {
             completedCount = getDailyProgress(dateString);
         }
 
-        if (completedCount >= 10) dayDiv.classList.add('completed');
+        if (completedCount >= 6) dayDiv.classList.add('completed');
         else if (completedCount > 0) dayDiv.classList.add('partial');
         
         grid.appendChild(dayDiv);
     }
+}
+
+function setupToggle() {
+    const toggleSkincare = document.getElementById('toggle-skincare');
+    const toggleGym = document.getElementById('toggle-gym');
+    const toggleContainer = document.querySelector('.routine-toggle-container');
+    
+    let activeTab = localStorage.getItem('active_routine_tab') || 'skincare';
+    
+    function setTab(tab) {
+        activeTab = tab;
+        localStorage.setItem('active_routine_tab', tab);
+        
+        const skincareView = document.getElementById('skincare-view');
+        const gymView = document.getElementById('gym-view');
+        const skincareBadges = document.getElementById('skincare-badges');
+        const gymBadges = document.getElementById('gym-badges');
+        const greeting = document.getElementById('greeting');
+        
+        if (tab === 'skincare') {
+            toggleSkincare.classList.add('active');
+            toggleGym.classList.remove('active');
+            toggleContainer.classList.remove('gym-active');
+            
+            skincareView.classList.remove('hidden');
+            gymView.classList.add('hidden');
+            skincareBadges.classList.remove('hidden');
+            gymBadges.classList.add('hidden');
+            
+            greeting.innerText = "Let's get glowing!";
+        } else {
+            toggleGym.classList.add('active');
+            toggleSkincare.classList.remove('active');
+            toggleContainer.classList.add('gym-active');
+            
+            gymView.classList.remove('hidden');
+            skincareView.classList.add('hidden');
+            gymBadges.classList.remove('hidden');
+            skincareBadges.classList.add('hidden');
+            
+            greeting.innerText = "Consistency over perfection!";
+        }
+    }
+    
+    toggleSkincare.addEventListener('click', () => setTab('skincare'));
+    toggleGym.addEventListener('click', () => setTab('gym'));
+    
+    // Set initial tab state
+    setTab(activeTab);
 }
 
 function renderApp() {
@@ -190,35 +312,69 @@ function renderApp() {
     
     document.getElementById('face-badge').innerText = `Night ${faceCycleNight}`;
     document.getElementById('body-badge').innerText = bodyTreatments[bodyCycleType].title;
+    
+    // Gym Header badges
+    document.getElementById('gym-focus').innerText = todayFocusTitle;
 
-    // Render Morning
+    // Render Skincare Morning
     const morningList = document.getElementById('morning-list');
     const morningCompletedList = document.getElementById('morning-completed-list');
-    morningList.innerHTML = '';
-    morningCompletedList.innerHTML = '';
-    morningRoutine.forEach(task => {
-        const card = createTaskCard(task, false, 'morning-list', 'morning-completed-list');
-        if (taskState[task.id]) morningCompletedList.appendChild(card);
-        else morningList.appendChild(card);
-    });
+    if (morningList && morningCompletedList) {
+        morningList.innerHTML = '';
+        morningCompletedList.innerHTML = '';
+        morningRoutine.forEach(task => {
+            const card = createTaskCard(task, false, 'morning-list', 'morning-completed-list');
+            if (taskState[task.id]) morningCompletedList.appendChild(card);
+            else morningList.appendChild(card);
+        });
+    }
 
-    // Render Evening
+    // Render Skincare Evening
     const eveningList = document.getElementById('evening-list');
     const eveningCompletedList = document.getElementById('evening-completed-list');
-    eveningList.innerHTML = '';
-    eveningCompletedList.innerHTML = '';
-    
-    const eveningTasks = [...coreEveningBase, faceTreatments[faceCycleNight], bodyTreatments[bodyCycleType]];
-    eveningTasks.forEach(task => {
-        const isTreatment = task.id.startsWith('f') || task.id.startsWith('b');
-        const card = createTaskCard(task, isTreatment, 'evening-list', 'evening-completed-list');
-        if (taskState[task.id]) eveningCompletedList.appendChild(card);
-        else eveningList.appendChild(card);
-    });
+    if (eveningList && eveningCompletedList) {
+        eveningList.innerHTML = '';
+        eveningCompletedList.innerHTML = '';
+        const eveningTasks = [...coreEveningBase, faceTreatments[faceCycleNight], bodyTreatments[bodyCycleType]];
+        eveningTasks.forEach(task => {
+            const isTreatment = task.id.startsWith('f') || task.id.startsWith('b');
+            const card = createTaskCard(task, isTreatment, 'evening-list', 'evening-completed-list');
+            if (taskState[task.id]) eveningCompletedList.appendChild(card);
+            else eveningList.appendChild(card);
+        });
+    }
+
+    // Render Gym Posture
+    const postureList = document.getElementById('posture-list');
+    const postureCompletedList = document.getElementById('posture-completed-list');
+    if (postureList && postureCompletedList) {
+        postureList.innerHTML = '';
+        postureCompletedList.innerHTML = '';
+        gymPostureRoutine.forEach(task => {
+            const card = createTaskCard(task, false, 'posture-list', 'posture-completed-list');
+            if (taskState[task.id]) postureCompletedList.appendChild(card);
+            else postureList.appendChild(card);
+        });
+    }
+
+    // Render Gym Workout
+    const workoutList = document.getElementById('workout-list');
+    const workoutCompletedList = document.getElementById('workout-completed-list');
+    if (workoutList && workoutCompletedList) {
+        workoutList.innerHTML = '';
+        workoutCompletedList.innerHTML = '';
+        todayWorkout.forEach(task => {
+            const card = createTaskCard(task, true, 'workout-list', 'workout-completed-list');
+            if (taskState[task.id]) workoutCompletedList.appendChild(card);
+            else workoutList.appendChild(card);
+        });
+    }
 
     updateProgress();
     renderCalendar();
+    setupToggle();
 }
 
 // Initialize
 document.addEventListener('DOMContentLoaded', renderApp);
+

@@ -21,7 +21,14 @@
                 <h1 id="date-display">Today's Routine</h1>
                 <p id="greeting" class="greeting-text">Let's get glowing!</p>
             </div>
-            <div class="cycle-badges">
+            
+            <div class="routine-toggle-container">
+                <div class="toggle-slider"></div>
+                <button class="toggle-btn active" id="toggle-skincare">Skincare</button>
+                <button class="toggle-btn" id="toggle-gym">Gym Workout</button>
+            </div>
+
+            <div class="cycle-badges" id="skincare-badges">
                 <div class="badge-card" id="face-badge-card">
                     <span class="badge-title">Face Cycle</span>
                     <span class="badge-value" id="face-badge">Night -</span>
@@ -29,6 +36,17 @@
                 <div class="badge-card" id="body-badge-card">
                     <span class="badge-title">Body Treatment</span>
                     <span class="badge-value" id="body-badge">-</span>
+                </div>
+            </div>
+
+            <div class="cycle-badges hidden" id="gym-badges">
+                <div class="badge-card" id="gym-focus-card">
+                    <span class="badge-title">Today's Focus</span>
+                    <span class="badge-value" id="gym-focus">-</span>
+                </div>
+                <div class="badge-card" id="gym-posture-card">
+                    <span class="badge-title">Posture Status</span>
+                    <span class="badge-value" id="gym-posture">APT Correction</span>
                 </div>
             </div>
         </header>
@@ -42,42 +60,84 @@
             </div>
         </section>
 
-        <main>
-            <section class="routine-section" id="morning-section">
-                <div class="section-header">
-                    <h2>Morning Routine</h2>
-                    <span class="time-hint">7:00 AM - 8:00 AM</span>
-                </div>
-                <div class="progress-container">
-                    <div class="progress-bar" id="morning-progress"></div>
-                </div>
-                <div class="task-list" id="morning-list"></div>
-                
-                <div class="completed-tasks-wrapper">
-                    <details class="completed-tasks-details">
-                        <summary>Completed Tasks</summary>
-                        <div class="task-list completed-list" id="morning-completed-list"></div>
-                    </details>
-                </div>
-            </section>
+        <main class="view-container">
+            <!-- Skincare View -->
+            <div id="skincare-view" class="routine-view active">
+                <section class="routine-section" id="morning-section">
+                    <div class="section-header">
+                        <h2>Morning Routine</h2>
+                        <span class="time-hint">7:00 AM - 8:00 AM</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="morning-progress"></div>
+                    </div>
+                    <div class="task-list" id="morning-list"></div>
+                    
+                    <div class="completed-tasks-wrapper">
+                        <details class="completed-tasks-details">
+                            <summary>Completed Tasks</summary>
+                            <div class="task-list completed-list" id="morning-completed-list"></div>
+                        </details>
+                    </div>
+                </section>
 
-            <section class="routine-section" id="evening-section">
-                <div class="section-header">
-                    <h2>Evening Routine</h2>
-                    <span class="time-hint">8:30 PM - 9:30 PM</span>
-                </div>
-                <div class="progress-container">
-                    <div class="progress-bar" id="evening-progress"></div>
-                </div>
-                <div class="task-list" id="evening-list"></div>
-                
-                <div class="completed-tasks-wrapper">
-                    <details class="completed-tasks-details">
-                        <summary>Completed Tasks</summary>
-                        <div class="task-list completed-list" id="evening-completed-list"></div>
-                    </details>
-                </div>
-            </section>
+                <section class="routine-section" id="evening-section">
+                    <div class="section-header">
+                        <h2>Evening Routine</h2>
+                        <span class="time-hint">8:30 PM - 9:30 PM</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="evening-progress"></div>
+                    </div>
+                    <div class="task-list" id="evening-list"></div>
+                    
+                    <div class="completed-tasks-wrapper">
+                        <details class="completed-tasks-details">
+                            <summary>Completed Tasks</summary>
+                            <div class="task-list completed-list" id="evening-completed-list"></div>
+                        </details>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Gym View -->
+            <div id="gym-view" class="routine-view hidden">
+                <section class="routine-section" id="posture-section">
+                    <div class="section-header">
+                        <h2>Posture Routine</h2>
+                        <span class="time-hint">Under 7-Min</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="posture-progress"></div>
+                    </div>
+                    <div class="task-list" id="posture-list"></div>
+                    
+                    <div class="completed-tasks-wrapper">
+                        <details class="completed-tasks-details">
+                            <summary>Completed Tasks</summary>
+                            <div class="task-list completed-list" id="posture-completed-list"></div>
+                        </details>
+                    </div>
+                </section>
+
+                <section class="routine-section" id="workout-section">
+                    <div class="section-header">
+                        <h2 id="workout-title">Main Workout</h2>
+                        <span class="time-hint" id="workout-time-hint">90-120s Rest</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="workout-progress"></div>
+                    </div>
+                    <div class="task-list" id="workout-list"></div>
+                    
+                    <div class="completed-tasks-wrapper">
+                        <details class="completed-tasks-details">
+                            <summary>Completed Tasks</summary>
+                            <div class="task-list completed-list" id="workout-completed-list"></div>
+                        </details>
+                    </div>
+                </section>
+            </div>
         </main>
     </div>
 
